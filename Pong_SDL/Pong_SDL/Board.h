@@ -1,0 +1,14 @@
+#ifndef ID_PONG_BOARD_H
+#define ID_PONG_BOARD_H
+#include <SDL.h>
+class Board
+{
+public:
+	Board();
+	~Board();
+	void Draw(SDL_Renderer* renderer,int screenWidth,int screenHeight);
+private:
+	int numberOfStripes;
+};
+#endif // !ID_PONG_BOARD_H
+

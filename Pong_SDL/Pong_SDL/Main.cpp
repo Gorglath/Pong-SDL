@@ -2,11 +2,12 @@
 #include "Ball.h"
 #include "Paddle.h"
 #include "Collision.h"
-
+#include "Board.h"
 const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 420;
+const int SCREEN_HEIGHT = 448;
 bool quit = false;
 
+Board board;
 Ball ball;
 Paddle leftPaddle;
 Paddle rightPaddle;
@@ -27,8 +28,9 @@ int main(int argc, char* args[])
 	window = SDL_CreateWindow("Pong-SDL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
+	board = Board();
 	ball = Ball(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 16, 16, 5, 5);
-	leftPaddle = Paddle(32, 200, 16, 64, 4);
+	leftPaddle = Paddle(16, 200, 16, 64, 4);
 	rightPaddle = Paddle(SCREEN_WIDTH - 32, 200, 16, 64, 4);
 	//Main game loop.
 	while (!quit)
@@ -108,6 +110,9 @@ void Draw(SDL_Renderer* renderer)
 	SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
 	SDL_RenderClear(renderer);
 	
+	SDL_SetRenderDrawColor(renderer, 0xA0, 0xA0, 0xA0, 0xA0);
+	board.Draw(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+
 	SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 	ball.Draw(renderer);
 	leftPaddle.Draw(renderer);

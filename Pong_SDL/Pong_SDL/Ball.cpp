@@ -17,13 +17,13 @@ void Ball::Update(int screenWidth,int screenHeight)
 {
 	x += speedX;
 	y += speedY;
-	if (y < 0)
+	if (y < 16)
 	{
-		VerticalBounce(0);
+		VerticalBounce(16);
 	}
-	else if (y > screenHeight - height)
+	else if (y > screenHeight - height - 16)
 	{
-		VerticalBounce(screenHeight - height);
+		VerticalBounce(screenHeight - height - 16 ); 
 	}
 	if (x < 0)
 	{
