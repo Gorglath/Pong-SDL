@@ -17,19 +17,38 @@ void Paddle::Update(int screenHeight,PaddleInput* input)
 {
 	if (input->MoveUp)
 	{
-		y -= speedY;
-		if (y < 0)
-		{
-			y = 0;
-		}
+		MoveUp();
 	}
 	else if (input->MoveDown)
 	{
-		y += speedY;
-		if (y > screenHeight - height)
-		{
-			y = screenHeight - height;
-		}
+		MoveDown(screenHeight);
+	}
+}
+void Paddle::UpdateAI(int screenHeight, int ballY)
+{
+	if (ballY < y + height / 4)
+	{
+		MoveUp();
+	}
+	else if (ballY > y + height * 3 / 4)
+	{
+		MoveDown(screenHeight);
+	}
+}
+void Paddle::MoveUp() 
+{
+	y -= speedY;
+	if (y < 0)
+	{
+		y = 0;
+	}
+}
+void Paddle::MoveDown(int screenHeight)
+{
+	y += speedY;
+	if (y > screenHeight - height)
+	{
+		y = screenHeight - height;
 	}
 }
 void Paddle::Draw(SDL_Renderer* renderer)

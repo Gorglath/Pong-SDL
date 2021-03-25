@@ -9,7 +9,10 @@ public:
 	Paddle(int nX, int nY, int nWidth, int nHeight, int nSpeedY);
 	~Paddle();
 	void Update(int screenHeight,PaddleInput* input);
+	void UpdateAI(int screenHeight, int ballY);
 	void Draw(SDL_Renderer* renderer);
+	void MoveUp();
+	void MoveDown(int screenHeight);
 	SDL_Rect ToRect();
 private:
 	int x;

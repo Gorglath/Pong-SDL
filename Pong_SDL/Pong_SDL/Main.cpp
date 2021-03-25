@@ -9,11 +9,14 @@ bool quit = false;
 
 Ball ball;
 Paddle leftPaddle;
+Paddle rightPaddle;
 PaddleInput input;
+
 void Update();
 void Draw(SDL_Renderer* renderer);
 void Close(SDL_Renderer* renderer, SDL_Window* window);
 bool HandleInput();
+inline void CheckCollision(SDL_Rect* ballRect, SDL_Rect* paddleRect, int newBallX);
 
 int main(int argc, char* args[])
 {
@@ -26,7 +29,7 @@ int main(int argc, char* args[])
 
 	ball = Ball(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 16, 16, 5, 5);
 	leftPaddle = Paddle(32, 200, 16, 64, 4);
-	
+	rightPaddle = Paddle(SCREEN_WIDTH - 32, 200, 16, 64, 4);
 	//Main game loop.
 	while (!quit)
 	{
@@ -83,12 +86,21 @@ void Update()
 {
 	ball.Update(SCREEN_WIDTH,SCREEN_HEIGHT);
 	leftPaddle.Update(SCREEN_HEIGHT, &input);
+
 	SDL_Rect ballRect = ball.ToRect();
 	SDL_Rect paddleRect = leftPaddle.ToRect();
-	bool colliding = Collision::AABBCollision(&ballRect, &paddleRect);
+	CheckCollision(&ballRect, &paddleRect, paddleRect.x + paddleRect.w);
+
+	rightPaddle.UpdateAI(SCREEN_HEIGHT,ballRect.y);
+	paddleRect = rightPaddle.ToRect();
+	CheckCollision(&ballRect, &paddleRect, paddleRect.x - paddleRect.w);
+}
+inline void CheckCollision(SDL_Rect* ballRect, SDL_Rect* paddleRect, int ballNewX)
+{
+	bool colliding = Collision::AABBCollision(ballRect, paddleRect);
 	if (colliding)
 	{
-		ball.HorizontalBounce(paddleRect.x + paddleRect.w);
+		ball.HorizontalBounce(ballNewX);
 	}
 }
 void Draw(SDL_Renderer* renderer)
@@ -99,6 +111,7 @@ void Draw(SDL_Renderer* renderer)
 	SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 	ball.Draw(renderer);
 	leftPaddle.Draw(renderer);
+	rightPaddle.Draw(renderer);
 	
 	SDL_RenderPresent(renderer);
 }
