@@ -1,13 +1,14 @@
 #ifndef ID_PONG_PADDLE_H
 #define ID_PONG_PADDLE_H
 #include <SDL.h>
+#include "PaddleInput.h"
 class Paddle
 {
 public:
 	Paddle();
 	Paddle(int nX, int nY, int nWidth, int nHeight, int nSpeedY);
 	~Paddle();
-	void Update(int screenHeight);
+	void Update(int screenHeight,PaddleInput* input);
 	void Draw(SDL_Renderer* renderer);
 	SDL_Rect ToRect();
 private:

@@ -1,12 +1,14 @@
 #include <SDL.h>
 #include "Ball.h"
+#include "Paddle.h"
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 420;
 bool quit = false;
 
 Ball ball;
-
+Paddle leftPaddle;
+PaddleInput input;
 void Update();
 void Draw(SDL_Renderer* renderer);
 void Close(SDL_Renderer* renderer, SDL_Window* window);
@@ -22,6 +24,8 @@ int main(int argc, char* args[])
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 	ball = Ball(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 16, 16, 5, 5);
+	leftPaddle = Paddle(32, 200, 16, 64, 4);
+	
 	//Main game loop.
 	while (!quit)
 	{
@@ -45,7 +49,29 @@ bool HandleInput()
 	SDL_Event e;
 	if (SDL_PollEvent(&e) != 0)
 	{
-		if (e.type == SDL_QUIT)
+		if (e.type == SDL_KEYDOWN)
+		{
+			if (e.key.keysym.sym == SDLK_w)
+			{
+				input.MoveUp = true;
+			}
+			else if(e.key.keysym.sym == SDLK_s)
+			{
+				input.MoveDown = true;
+			}
+		}
+		else if (e.type == SDL_KEYUP)
+		{
+			if (e.key.keysym.sym == SDLK_w)
+			{
+				input.MoveUp = false;
+			}
+			else if (e.key.keysym.sym == SDLK_s)
+			{
+				input.MoveDown = false;
+			}
+		}
+		else if (e.type == SDL_QUIT)
 		{
 			return true;
 		}
@@ -55,6 +81,7 @@ bool HandleInput()
 void Update()
 {
 	ball.Update(SCREEN_WIDTH,SCREEN_HEIGHT);
+	leftPaddle.Update(SCREEN_HEIGHT, &input);
 }
 void Draw(SDL_Renderer* renderer)
 {
@@ -63,6 +90,7 @@ void Draw(SDL_Renderer* renderer)
 	
 	SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 	ball.Draw(renderer);
+	leftPaddle.Draw(renderer);
 	
 	SDL_RenderPresent(renderer);
 }
