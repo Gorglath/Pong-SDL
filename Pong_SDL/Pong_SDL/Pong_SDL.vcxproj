@@ -148,6 +148,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ball.h" />
+    <ClInclude Include="Collision.h" />
     <ClInclude Include="PaddleInput.h" />
     <ClInclude Include="Paddle.h" />
   </ItemGroup>

@@ -1,6 +1,7 @@
 #include <SDL.h>
 #include "Ball.h"
 #include "Paddle.h"
+#include "Collision.h"
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 420;
@@ -82,6 +83,13 @@ void Update()
 {
 	ball.Update(SCREEN_WIDTH,SCREEN_HEIGHT);
 	leftPaddle.Update(SCREEN_HEIGHT, &input);
+	SDL_Rect ballRect = ball.ToRect();
+	SDL_Rect paddleRect = leftPaddle.ToRect();
+	bool colliding = Collision::AABBCollision(&ballRect, &paddleRect);
+	if (colliding)
+	{
+		ball.HorizontalBounce(paddleRect.x + paddleRect.w);
+	}
 }
 void Draw(SDL_Renderer* renderer)
 {
