@@ -7,10 +7,25 @@
 #include "Board.h"
 #include "Text.h"
 
+//Global Variables
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 448;
 char newText[2];
 bool quit = false;
+//Menu numbers: 0 = Main Menu, 1 = Game Menu, 2 = Game Over Menu.
+int currentMenu = 0;
+
+PaddleInput input;
+
+//Main Menu Variables
+//Text Numbers: 0 = Start Game Text, 1 = Quit Game Text.
+int currentTextSelect = 0;
+Text titleText = Text(SCREEN_WIDTH / 2 - SCREEN_WIDTH/4/2 , SCREEN_HEIGHT / 4/4 , SCREEN_WIDTH / 4, SCREEN_HEIGHT / 4);
+Text subTitleText = Text(SCREEN_WIDTH / 2 - SCREEN_WIDTH/10/2, SCREEN_HEIGHT / 4/4 + SCREEN_HEIGHT/4/4*3 + SCREEN_HEIGHT / 10 / 2, SCREEN_WIDTH / 10,SCREEN_HEIGHT/10);
+Text startGameText = Text(SCREEN_WIDTH / 4 - SCREEN_WIDTH / 8 / 2, SCREEN_HEIGHT / 2 + SCREEN_HEIGHT / 8 / 2, SCREEN_WIDTH / 8, SCREEN_WIDTH / 8);
+Text quitGameText = Text(SCREEN_WIDTH / 4 * 3 - SCREEN_WIDTH / 8 / 2, SCREEN_HEIGHT / 2 + SCREEN_HEIGHT / 8 / 2, SCREEN_WIDTH / 8, SCREEN_WIDTH / 8);
+
+//Game Menu Variables
 int playerScore = 0;
 int opponentScore = 0;
 
@@ -18,14 +33,15 @@ Board board;
 Ball ball;
 Paddle leftPaddle;
 Paddle rightPaddle;
-PaddleInput input;
 
 Text playerScoreText = Text(SCREEN_WIDTH / 4, SCREEN_HEIGHT / 4, 25, 50);
 Text opponentScoreText = Text(SCREEN_WIDTH / 4 * 3, SCREEN_HEIGHT / 4, 25, 50);
 
 void Load(SDL_Renderer* renderer);
-void ResetAfterShot();
 void Update(SDL_Renderer* renderer);
+void UpdateGameMenu(SDL_Renderer* renderer);
+void UpdateMainMenu(SDL_Renderer* renderer);
+void UpdateGameOverMenu();
 void Draw(SDL_Renderer* renderer);
 void Close(SDL_Renderer* renderer, SDL_Window* window);
 bool HandleInput();
@@ -68,8 +84,12 @@ int main(int argc, char* args[])
 }
 void Load(SDL_Renderer* renderer)
 {
-	playerScoreText.Load(renderer, "0");
-	opponentScoreText.Load(renderer, "0");
+	titleText.Load(renderer, "PONG", { 0xFF,0xFF,0xFF });
+	subTitleText.Load(renderer, "By Idan Dvir", { 0xFF,0xFF,0xFF });
+	startGameText.Load(renderer, "Start Game", { 0x00,0x00,0x00 });
+	quitGameText.Load(renderer, "Quit Game", { 0xFF,0xFF,0xFF });
+	playerScoreText.Load(renderer, "0", { 0xFF,0xFF,0xFF });
+	opponentScoreText.Load(renderer, "0", { 0xFF,0xFF,0xFF });
 }
 bool HandleInput()
 {
@@ -82,9 +102,21 @@ bool HandleInput()
 			{
 				input.MoveUp = true;
 			}
-			else if(e.key.keysym.sym == SDLK_s)
+			else if (e.key.keysym.sym == SDLK_s)
 			{
 				input.MoveDown = true;
+			}
+			else if (e.key.keysym.sym == SDLK_a)
+			{
+				input.MoveLeft = true;
+			}
+			else if (e.key.keysym.sym == SDLK_d) 
+			{
+				input.MoveRight = true;
+			}
+			else if (e.key.keysym.sym == SDLK_SPACE)
+			{
+				input.Select = true;
 			}
 		}
 		else if (e.type == SDL_KEYUP)
@@ -97,6 +129,18 @@ bool HandleInput()
 			{
 				input.MoveDown = false;
 			}
+			else if (e.key.keysym.sym == SDLK_a)
+			{
+				input.MoveLeft = false;
+			}
+			else if (e.key.keysym.sym == SDLK_d)
+			{
+				input.MoveRight = false;
+			}
+			else if (e.key.keysym.sym == SDLK_SPACE)
+			{
+				input.Select = false;
+			}
 		}
 		else if (e.type == SDL_QUIT)
 		{
@@ -107,14 +151,29 @@ bool HandleInput()
 }
 void Update(SDL_Renderer* renderer)
 {
+	if (currentMenu == 0)
+	{
+		UpdateMainMenu(renderer);
+	}
+	else if (currentMenu == 1)
+	{
+		UpdateGameMenu(renderer);
+	}
+	else if (currentMenu == 2)
+	{
+		UpdateGameOverMenu();
+	}
+}
+void UpdateGameMenu(SDL_Renderer* renderer)
+{
 	ball.Update(SCREEN_HEIGHT);
 	leftPaddle.Update(SCREEN_HEIGHT, &input);
 
 	SDL_Rect ballRect = ball.ToRect();
 	SDL_Rect paddleRect = leftPaddle.ToRect();
 	CheckCollision(&ballRect, &paddleRect, paddleRect.x + paddleRect.w);
-	
-	rightPaddle.UpdateAI(SCREEN_HEIGHT,ballRect.y);
+
+	rightPaddle.UpdateAI(SCREEN_HEIGHT, ballRect.y);
 	paddleRect = rightPaddle.ToRect();
 	CheckCollision(&ballRect, &paddleRect, paddleRect.x - paddleRect.w);
 
@@ -122,7 +181,7 @@ void Update(SDL_Renderer* renderer)
 	{
 		opponentScore++;
 		sprintf_s(newText, "%d", opponentScore);
-		opponentScoreText.ChangeText(renderer, newText);
+		opponentScoreText.ChangeText(renderer, newText, { 0xFF,0xFF,0xFF });
 		ball.ResetPosition(SCREEN_WIDTH, SCREEN_HEIGHT);
 		if (opponentScore >= 7)
 		{
@@ -133,7 +192,7 @@ void Update(SDL_Renderer* renderer)
 	{
 		playerScore++;
 		sprintf_s(newText, "%d", playerScore);
-		playerScoreText.ChangeText(renderer, newText);
+		playerScoreText.ChangeText(renderer, newText, { 0xFF,0xFF,0xFF });
 		ball.ResetPosition(SCREEN_WIDTH, SCREEN_HEIGHT);
 		if (playerScore >= 7)
 		{
@@ -141,6 +200,33 @@ void Update(SDL_Renderer* renderer)
 		}
 	}
 }
+void UpdateMainMenu(SDL_Renderer* renderer)
+{
+	if (input.MoveLeft)
+	{
+		currentTextSelect = 0;
+		startGameText.ChangeText(renderer, "Start Game", { 0x00,0x00,0x00 });
+		quitGameText.ChangeText(renderer, "Quit Game", { 0xFF,0xFF,0xFF });
+	}
+	else if (input.MoveRight)
+	{
+		currentTextSelect = 1;
+		startGameText.ChangeText(renderer, "Start Game", { 0xFF,0xFF,0xFF });
+		quitGameText.ChangeText(renderer, "Quit Game", { 0x00,0x00,0x00 });
+	}
+	else if (input.Select)
+	{
+		if (currentTextSelect == 0)
+		{
+			currentMenu = 1;
+		}
+		else if (currentTextSelect == 1)
+		{
+			quit = true;
+		}
+	}
+}
+void UpdateGameOverMenu() {}
 inline void CheckCollision(SDL_Rect* ballRect, SDL_Rect* paddleRect, int ballNewX)
 {
 	bool colliding = Collision::AABBCollision(ballRect, paddleRect);
@@ -153,17 +239,46 @@ void Draw(SDL_Renderer* renderer)
 {
 	SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
 	SDL_RenderClear(renderer);
-	
-	SDL_SetRenderDrawColor(renderer, 0xA0, 0xA0, 0xA0, 0xA0);
-	board.Draw(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
-	playerScoreText.Draw(renderer);
-	opponentScoreText.Draw(renderer);
+	if (currentMenu == 0)
+	{
+		titleText.Draw(renderer);
+		subTitleText.Draw(renderer);
+		SDL_Rect rect;
+		if (currentTextSelect == 0)
+		{
+			rect = startGameText.ToRect();
+		}
+		else if (currentTextSelect == 1)
+		{
+			rect = quitGameText.ToRect();
+		}
+		rect.x -= rect.w / 8 / 2;
+		rect.y -= rect.h / 24/2;
+		rect.w += rect.w / 8;
+		rect.h += rect.h / 24;
 
-	SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-	ball.Draw(renderer);
-	leftPaddle.Draw(renderer);
-	rightPaddle.Draw(renderer);
-	
+		SDL_SetRenderDrawColor(renderer, 0xA0, 0xA0, 0xA0, 0xA0);
+		SDL_RenderFillRect(renderer, &rect);
+
+		startGameText.Draw(renderer);
+		quitGameText.Draw(renderer);
+	}
+	else if (currentMenu == 1)
+	{		
+		SDL_SetRenderDrawColor(renderer, 0xA0, 0xA0, 0xA0, 0xA0);
+		board.Draw(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+		playerScoreText.Draw(renderer);
+		opponentScoreText.Draw(renderer);
+
+		SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+		ball.Draw(renderer);
+		leftPaddle.Draw(renderer);
+		rightPaddle.Draw(renderer);
+	}
+	else if (currentMenu == 2)
+	{
+
+	}
 	SDL_RenderPresent(renderer);
 }
 void Close(SDL_Renderer* renderer,SDL_Window* window)
