@@ -37,11 +37,17 @@ Paddle rightPaddle;
 Text playerScoreText = Text(SCREEN_WIDTH / 4, SCREEN_HEIGHT / 4, 25, 50);
 Text opponentScoreText = Text(SCREEN_WIDTH / 4 * 3, SCREEN_HEIGHT / 4, 25, 50);
 
+//Game Over Menu
+Text gameOverTitleText = Text(SCREEN_WIDTH / 2 - SCREEN_WIDTH / 4 / 2, SCREEN_HEIGHT / 4 / 4, SCREEN_WIDTH / 4, SCREEN_HEIGHT / 4);
+Text restartGameText = Text(SCREEN_WIDTH / 4 - SCREEN_WIDTH / 8 / 2, SCREEN_HEIGHT / 2 + SCREEN_HEIGHT / 8 / 2, SCREEN_WIDTH / 8, SCREEN_WIDTH / 8);
+Text returnToMenu = Text(SCREEN_WIDTH / 4 * 3 - SCREEN_WIDTH / 8 / 2, SCREEN_HEIGHT / 2 + SCREEN_HEIGHT / 8 / 2, SCREEN_WIDTH / 8, SCREEN_WIDTH / 8);
+
 void Load(SDL_Renderer* renderer);
 void Update(SDL_Renderer* renderer);
 void UpdateGameMenu(SDL_Renderer* renderer);
 void UpdateMainMenu(SDL_Renderer* renderer);
-void UpdateGameOverMenu();
+void UpdateGameOverMenu(SDL_Renderer* renderer);
+void RestartGame(SDL_Renderer* renderer);
 void Draw(SDL_Renderer* renderer);
 void Close(SDL_Renderer* renderer, SDL_Window* window);
 bool HandleInput();
@@ -88,8 +94,13 @@ void Load(SDL_Renderer* renderer)
 	subTitleText.Load(renderer, "By Idan Dvir", { 0xFF,0xFF,0xFF });
 	startGameText.Load(renderer, "Start Game", { 0x00,0x00,0x00 });
 	quitGameText.Load(renderer, "Quit Game", { 0xFF,0xFF,0xFF });
+
 	playerScoreText.Load(renderer, "0", { 0xFF,0xFF,0xFF });
 	opponentScoreText.Load(renderer, "0", { 0xFF,0xFF,0xFF });
+	
+	gameOverTitleText.Load(renderer, "", { 0xFF,0xFF,0xFF });
+	restartGameText.Load(renderer, "Restart Game", { 0x00,0x00,0x00 });
+	returnToMenu.Load(renderer, "Return To Menu", { 0xFF,0xFF,0xFF });
 }
 bool HandleInput()
 {
@@ -161,7 +172,7 @@ void Update(SDL_Renderer* renderer)
 	}
 	else if (currentMenu == 2)
 	{
-		UpdateGameOverMenu();
+		UpdateGameOverMenu(renderer);
 	}
 }
 void UpdateGameMenu(SDL_Renderer* renderer)
@@ -185,7 +196,9 @@ void UpdateGameMenu(SDL_Renderer* renderer)
 		ball.ResetPosition(SCREEN_WIDTH, SCREEN_HEIGHT);
 		if (opponentScore >= 7)
 		{
-			//opponent won.
+			ball.SetSpeed(0);
+			gameOverTitleText.ChangeText(renderer, "Defeat...", { 0xFF,0xFF,0xFF });
+			currentMenu = 2;
 		}
 	}
 	else if (ballRect.x > SCREEN_WIDTH - ballRect.w)
@@ -196,7 +209,9 @@ void UpdateGameMenu(SDL_Renderer* renderer)
 		ball.ResetPosition(SCREEN_WIDTH, SCREEN_HEIGHT);
 		if (playerScore >= 7)
 		{
-			//Player won.
+			ball.SetSpeed(0);
+			gameOverTitleText.ChangeText(renderer, "VICTORY!", { 0xFF,0xFF,0xFF });
+			currentMenu = 2;
 		}
 	}
 }
@@ -219,6 +234,7 @@ void UpdateMainMenu(SDL_Renderer* renderer)
 		if (currentTextSelect == 0)
 		{
 			currentMenu = 1;
+			ball.SetSpeed(20);
 		}
 		else if (currentTextSelect == 1)
 		{
@@ -226,7 +242,44 @@ void UpdateMainMenu(SDL_Renderer* renderer)
 		}
 	}
 }
-void UpdateGameOverMenu() {}
+void UpdateGameOverMenu(SDL_Renderer* renderer)
+{
+	if (input.MoveLeft)
+	{
+		currentTextSelect = 0;
+		restartGameText.ChangeText(renderer, "Restart Game", { 0x00,0x00,0x00 });
+		returnToMenu.ChangeText(renderer, "Return To Menu", { 0xFF,0xFF,0xFF });
+	}
+	else if (input.MoveRight)
+	{
+		currentTextSelect = 1;
+		restartGameText.ChangeText(renderer, "Restart Game", { 0xFF,0xFF,0xFF });
+		returnToMenu.ChangeText(renderer, "Return To Menu", { 0x00,0x00,0x00 });
+	}
+	else if (input.Select)
+	{
+		if (currentTextSelect == 0)
+		{
+			currentMenu = 1;
+			ball.SetSpeed(5);
+			RestartGame(renderer);
+		}
+		else if (currentTextSelect == 1)
+		{
+			currentMenu = 0;
+			currentTextSelect = 0;
+			returnToMenu.ChangeText(renderer, "Return To Menu", { 0xFF,0xFF,0xFF });
+			input.Select = false;
+		}
+	}
+}
+void RestartGame(SDL_Renderer* renderer)
+{
+	playerScore = 0;
+	opponentScore = 0;
+	playerScoreText.Load(renderer, "0", { 0xFF,0xFF,0xFF });
+	opponentScoreText.Load(renderer, "0", { 0xFF,0xFF,0xFF });
+}
 inline void CheckCollision(SDL_Rect* ballRect, SDL_Rect* paddleRect, int ballNewX)
 {
 	bool colliding = Collision::AABBCollision(ballRect, paddleRect);
@@ -277,7 +330,26 @@ void Draw(SDL_Renderer* renderer)
 	}
 	else if (currentMenu == 2)
 	{
+		gameOverTitleText.Draw(renderer);
+		SDL_Rect rect;
+		if (currentTextSelect == 0)
+		{
+			rect = restartGameText.ToRect();
+		}
+		else if (currentTextSelect == 1)
+		{
+			rect = returnToMenu.ToRect();
+		}
+		rect.x -= rect.w / 8 / 2;
+		rect.y -= rect.h / 24 / 2;
+		rect.w += rect.w / 8;
+		rect.h += rect.h / 24;
 
+		SDL_SetRenderDrawColor(renderer, 0xA0, 0xA0, 0xA0, 0xA0);
+		SDL_RenderFillRect(renderer, &rect);
+
+		restartGameText.Draw(renderer);
+		returnToMenu.Draw(renderer);
 	}
 	SDL_RenderPresent(renderer);
 }
