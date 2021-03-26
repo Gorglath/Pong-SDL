@@ -7,10 +7,11 @@ public:
 	Ball();
 	Ball(int nX, int nY, int nWidth, int nHeight,int nSpeedX,int nSpeedY);
 	~Ball();
-	void Update(int screenWidth,int screenHeight);
+	void Update(int screenHeight);
 	void Draw(SDL_Renderer* renderer);
 	void HorizontalBounce(int newXPos);
 	void VerticalBounce(int newYPos);
+	void ResetPosition(int screenWidth,int screenHeight);
 	SDL_Rect ToRect();
 	int GetX() const;
 private:

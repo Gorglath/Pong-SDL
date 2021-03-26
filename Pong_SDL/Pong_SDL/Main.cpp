@@ -5,9 +5,14 @@
 #include "Paddle.h"
 #include "Collision.h"
 #include "Board.h"
+#include "Text.h"
+
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 448;
+char newText[2];
 bool quit = false;
+int playerScore = 0;
+int opponentScore = 0;
 
 Board board;
 Ball ball;
@@ -15,7 +20,12 @@ Paddle leftPaddle;
 Paddle rightPaddle;
 PaddleInput input;
 
-void Update();
+Text playerScoreText = Text(SCREEN_WIDTH / 4, SCREEN_HEIGHT / 4, 25, 50);
+Text opponentScoreText = Text(SCREEN_WIDTH / 4 * 3, SCREEN_HEIGHT / 4, 25, 50);
+
+void Load(SDL_Renderer* renderer);
+void ResetAfterShot();
+void Update(SDL_Renderer* renderer);
 void Draw(SDL_Renderer* renderer);
 void Close(SDL_Renderer* renderer, SDL_Window* window);
 bool HandleInput();
@@ -32,6 +42,8 @@ int main(int argc, char* args[])
 	window = SDL_CreateWindow("Pong-SDL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
+	Load(renderer);
+
 	board = Board();
 	ball = Ball(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 16, 16, 5, 5);
 	leftPaddle = Paddle(16, 200, 16, 64, 4);
@@ -43,7 +55,7 @@ int main(int argc, char* args[])
 		quit = HandleInput();
 
 		//Update objects.
-		Update();
+		Update(renderer);
 
 		//Draw objects.
 		Draw(renderer);
@@ -53,6 +65,11 @@ int main(int argc, char* args[])
 	Close(renderer, window);
 
 	return 0;
+}
+void Load(SDL_Renderer* renderer)
+{
+	playerScoreText.Load(renderer, "0");
+	opponentScoreText.Load(renderer, "0");
 }
 bool HandleInput()
 {
@@ -88,18 +105,41 @@ bool HandleInput()
 	}
 	return false;
 }
-void Update()
+void Update(SDL_Renderer* renderer)
 {
-	ball.Update(SCREEN_WIDTH,SCREEN_HEIGHT);
+	ball.Update(SCREEN_HEIGHT);
 	leftPaddle.Update(SCREEN_HEIGHT, &input);
 
 	SDL_Rect ballRect = ball.ToRect();
 	SDL_Rect paddleRect = leftPaddle.ToRect();
 	CheckCollision(&ballRect, &paddleRect, paddleRect.x + paddleRect.w);
-
+	
 	rightPaddle.UpdateAI(SCREEN_HEIGHT,ballRect.y);
 	paddleRect = rightPaddle.ToRect();
 	CheckCollision(&ballRect, &paddleRect, paddleRect.x - paddleRect.w);
+
+	if (ballRect.x < 0)
+	{
+		opponentScore++;
+		sprintf_s(newText, "%d", opponentScore);
+		opponentScoreText.ChangeText(renderer, newText);
+		ball.ResetPosition(SCREEN_WIDTH, SCREEN_HEIGHT);
+		if (opponentScore >= 7)
+		{
+			//opponent won.
+		}
+	}
+	else if (ballRect.x > SCREEN_WIDTH - ballRect.w)
+	{
+		playerScore++;
+		sprintf_s(newText, "%d", playerScore);
+		playerScoreText.ChangeText(renderer, newText);
+		ball.ResetPosition(SCREEN_WIDTH, SCREEN_HEIGHT);
+		if (playerScore >= 7)
+		{
+			//Player won.
+		}
+	}
 }
 inline void CheckCollision(SDL_Rect* ballRect, SDL_Rect* paddleRect, int ballNewX)
 {
@@ -116,6 +156,8 @@ void Draw(SDL_Renderer* renderer)
 	
 	SDL_SetRenderDrawColor(renderer, 0xA0, 0xA0, 0xA0, 0xA0);
 	board.Draw(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
+	playerScoreText.Draw(renderer);
+	opponentScoreText.Draw(renderer);
 
 	SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 	ball.Draw(renderer);

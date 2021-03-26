@@ -13,7 +13,7 @@ Ball::~Ball()
 {
 
 }
-void Ball::Update(int screenWidth,int screenHeight)
+void Ball::Update(int screenHeight)
 {
 	x += speedX;
 	y += speedY;
@@ -24,14 +24,6 @@ void Ball::Update(int screenWidth,int screenHeight)
 	else if (y > screenHeight - height - 16)
 	{
 		VerticalBounce(screenHeight - height - 16 ); 
-	}
-	if (x < 0)
-	{
-		HorizontalBounce(0);
-	}
-	else if (x > screenWidth - width)
-	{
-		HorizontalBounce(screenWidth - width);
 	}
 }
 void Ball::Draw(SDL_Renderer* renderer)
@@ -49,7 +41,17 @@ void Ball::VerticalBounce(int newYPos)
 	speedY = -speedY;
 	y = newYPos;
 }
+void Ball::ResetPosition(int screenWidth,int screenHeight)
+{
+	x = screenWidth / 2;
+	y = screenHeight / 2;
+	speedX = -speedX;
+}
 SDL_Rect Ball::ToRect()
 {
 	return { x,y,width,height };
+}
+int Ball::GetX() const
+{
+	return x;
 }
