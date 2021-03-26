@@ -12,7 +12,7 @@ void Board::Draw(SDL_Renderer* renderer, int screenWidth, int screenHeight)
 {
 	SDL_Rect rect;
 	int multiplier = 0;
-	numberOfStripes = (screenHeight - 32) / 32;
+	int numberOfStripes = (screenHeight - 32) / 32;
 
 	for (int i = 0; i < numberOfStripes; i++)
 	{

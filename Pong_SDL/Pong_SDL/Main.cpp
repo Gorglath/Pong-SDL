@@ -1,4 +1,6 @@
 #include <SDL.h>
+#include <SDL_ttf.h>
+#include <cstdio>
 #include "Ball.h"
 #include "Paddle.h"
 #include "Collision.h"
@@ -25,6 +27,8 @@ int main(int argc, char* args[])
 	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+	TTF_Init();
+	
 	window = SDL_CreateWindow("Pong-SDL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
