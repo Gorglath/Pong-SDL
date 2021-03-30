@@ -47,10 +47,10 @@ void Ball::ResetPosition(int screenWidth,int screenHeight)
 	y = screenHeight / 2;
 	speedX = -speedX;
 }
-void Ball::SetSpeed(int nSpeed)
+void Ball::SetSpeed(int nSpeedX,int nSpeedY)
 {
-	speedX = nSpeed;
-	speedY = nSpeed;
+	speedX = nSpeedX;
+	speedY = nSpeedY;
 }
 SDL_Rect Ball::ToRect()
 {
@@ -59,4 +59,8 @@ SDL_Rect Ball::ToRect()
 int Ball::GetX() const
 {
 	return x;
+}
+int Ball::GetXSpeed() const
+{
+	return speedX;
 }

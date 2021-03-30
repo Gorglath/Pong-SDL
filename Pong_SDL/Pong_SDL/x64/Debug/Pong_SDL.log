@@ -1,2 +1,5 @@
 ﻿  Main.cpp
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt\corecrt_math_defines.h(28,1): warning C4005: 'M_PI': macro redefinition
+C:\Users\idan8\Desktop\SDL\SDL2-2.0.14\include\SDL_stdinc.h(518): message : see previous definition of 'M_PI'
+C:\Users\idan8\Desktop\C++ Projects\Pong-SDL\Pong_SDL\Pong_SDL\Main.cpp(316,40): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
   Pong_SDL.vcxproj -> C:\Users\idan8\Desktop\C++ Projects\Pong-SDL\Pong_SDL\x64\Debug\Pong_SDL.exe

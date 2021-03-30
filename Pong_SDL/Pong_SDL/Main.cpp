@@ -1,12 +1,13 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <cstdio>
+#include <cmath>
 #include "Ball.h"
 #include "Paddle.h"
 #include "Collision.h"
 #include "Board.h"
 #include "Text.h"
-
+#include "Triangle.h"
 //Global Variables
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 448;
@@ -52,6 +53,7 @@ void Draw(SDL_Renderer* renderer);
 void Close(SDL_Renderer* renderer, SDL_Window* window);
 bool HandleInput();
 inline void CheckCollision(SDL_Rect* ballRect, SDL_Rect* paddleRect, int newBallX);
+inline double RemapValue(double value, double low1, double high1, double low2, double high2);
 
 int main(int argc, char* args[])
 {
@@ -196,7 +198,7 @@ void UpdateGameMenu(SDL_Renderer* renderer)
 		ball.ResetPosition(SCREEN_WIDTH, SCREEN_HEIGHT);
 		if (opponentScore >= 7)
 		{
-			ball.SetSpeed(0);
+			ball.SetSpeed(0,0);
 			gameOverTitleText.ChangeText(renderer, "Defeat...", { 0xFF,0xFF,0xFF });
 			currentMenu = 2;
 		}
@@ -209,7 +211,7 @@ void UpdateGameMenu(SDL_Renderer* renderer)
 		ball.ResetPosition(SCREEN_WIDTH, SCREEN_HEIGHT);
 		if (playerScore >= 7)
 		{
-			ball.SetSpeed(0);
+			ball.SetSpeed(0,0);
 			gameOverTitleText.ChangeText(renderer, "VICTORY!", { 0xFF,0xFF,0xFF });
 			currentMenu = 2;
 		}
@@ -234,7 +236,7 @@ void UpdateMainMenu(SDL_Renderer* renderer)
 		if (currentTextSelect == 0)
 		{
 			currentMenu = 1;
-			ball.SetSpeed(20);
+			ball.SetSpeed(5,5);
 		}
 		else if (currentTextSelect == 1)
 		{
@@ -261,7 +263,7 @@ void UpdateGameOverMenu(SDL_Renderer* renderer)
 		if (currentTextSelect == 0)
 		{
 			currentMenu = 1;
-			ball.SetSpeed(5);
+			ball.SetSpeed(5,5);
 			RestartGame(renderer);
 		}
 		else if (currentTextSelect == 1)
@@ -283,8 +285,35 @@ void RestartGame(SDL_Renderer* renderer)
 inline void CheckCollision(SDL_Rect* ballRect, SDL_Rect* paddleRect, int ballNewX)
 {
 	bool colliding = Collision::AABBCollision(ballRect, paddleRect);
+	
+	
 	if (colliding)
 	{
+		double ballAngle;
+		double hypoDistance;
+		double oppoDistance;
+		if (paddleRect->x > SCREEN_WIDTH / 2)
+		{
+			hypoDistance = Triangle::CalculateDistance((double)ballRect->x + ballRect->w / 2, (double)ballRect->y + ballRect->h / 2
+				, (double)paddleRect->x + paddleRect->w / 2, (double)paddleRect->y + paddleRect->h / 2);
+			oppoDistance = Triangle::CalculateDistance((double)paddleRect->x + paddleRect->w / 2, (double)ballRect->y + ballRect->h / 2
+				, (double)paddleRect->x + paddleRect->w / 2, (double)paddleRect->y + paddleRect->h / 2);
+			ballAngle = Triangle::GetSinAngle(hypoDistance, oppoDistance);
+		}
+		else
+		{
+			hypoDistance = Triangle::CalculateDistance((double)ballRect->x + ballRect->w / 2, (double)ballRect->y + ballRect->h / 2
+				, (double)paddleRect->x + paddleRect->w / 2, (double)paddleRect->y + paddleRect->h / 2);
+		    oppoDistance = Triangle::CalculateDistance((double)paddleRect->x + paddleRect->w / 2, (double)ballRect->y + ballRect->h / 2
+				, (double)paddleRect->x + paddleRect->w / 2, (double)paddleRect->y + paddleRect->h / 2);
+		    ballAngle = Triangle::GetSinAngle(hypoDistance, oppoDistance);
+		}
+		double remmapedAngle = RemapValue(ballAngle, 50.0, 75.0, 0.5, 1.5);
+		if (ballRect->y + ballRect->h / 2 < paddleRect->y + paddleRect->h / 2)
+		{
+			remmapedAngle = -remmapedAngle;
+		}
+		ball.SetSpeed(ball.GetXSpeed() , 5.0 * remmapedAngle);
 		ball.HorizontalBounce(ballNewX);
 	}
 }
@@ -358,4 +387,8 @@ void Close(SDL_Renderer* renderer,SDL_Window* window)
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
+}
+inline double RemapValue(double value, double low1, double high1, double low2, double high2)
+{
+	return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
 }

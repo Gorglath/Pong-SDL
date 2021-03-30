@@ -12,9 +12,10 @@ public:
 	void HorizontalBounce(int newXPos);
 	void VerticalBounce(int newYPos);
 	void ResetPosition(int screenWidth,int screenHeight);
-	void SetSpeed(int nSpeed);
+	void SetSpeed(int nSpeedX,int nSpeedY);
 	SDL_Rect ToRect();
 	int GetX() const;
+	int GetXSpeed() const;
 private:
 	int x;
 	int y;
