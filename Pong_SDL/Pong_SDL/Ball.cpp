@@ -1,11 +1,11 @@
 #include "Ball.h"
 
-Ball::Ball() :x(0), y(0), width(32), height(32), speedX(5),speedY(5)
+Ball::Ball() :x(0), y(0), width(32), height(32), speedX(5),speedY(5),wallHitSound()
 {
 
 }
-Ball::Ball(int nX, int nY, int nWidth, int nHeight, int nSpeedX,int nSpeedY) :
-	x(nX), y(nY), width(nWidth), height(nHeight), speedX(nSpeedX),speedY(nSpeedY)
+Ball::Ball(int nX, int nY, int nWidth, int nHeight, int nSpeedX,int nSpeedY,Sound newWallHitSound) :
+	x(nX), y(nY), width(nWidth), height(nHeight), speedX(nSpeedX),speedY(nSpeedY),wallHitSound(newWallHitSound)
 {
 
 }
@@ -38,6 +38,7 @@ void Ball::HorizontalBounce(int newXPos)
 }
 void Ball::VerticalBounce(int newYPos)
 {
+	wallHitSound.Play();
 	speedY = -speedY;
 	y = newYPos;
 }

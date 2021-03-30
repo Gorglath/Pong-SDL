@@ -1,11 +1,12 @@
 #ifndef ID_PONG_BALL_H
 #define ID_PONG_BALL_H
 #include <SDL.h>
+#include"Sound.h"
 class Ball
 {
 public:
 	Ball();
-	Ball(int nX, int nY, int nWidth, int nHeight,int nSpeedX,int nSpeedY);
+	Ball(int nX, int nY, int nWidth, int nHeight,int nSpeedX,int nSpeedY,Sound newWallHitSound);
 	~Ball();
 	void Update(int screenHeight);
 	void Draw(SDL_Renderer* renderer);
@@ -23,6 +24,7 @@ private:
 	int height;
 	int speedX;
 	int speedY;
+	Sound wallHitSound;
 };
 #endif // !ID_PONG_BALL_H
 

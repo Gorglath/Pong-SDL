@@ -1,5 +1,6 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
+#include <SDL_mixer.h>
 #include <cstdio>
 #include <cmath>
 #include "Ball.h"
@@ -8,6 +9,7 @@
 #include "Board.h"
 #include "Text.h"
 #include "Triangle.h"
+#include "Sound.h"
 //Global Variables
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 448;
@@ -38,6 +40,10 @@ Paddle rightPaddle;
 Text playerScoreText = Text(SCREEN_WIDTH / 4, SCREEN_HEIGHT / 4, 25, 50);
 Text opponentScoreText = Text(SCREEN_WIDTH / 4 * 3, SCREEN_HEIGHT / 4, 25, 50);
 
+Sound wallBounceSound = Sound("Sound\\WallBounce.wav");
+Sound paddleBounceSound = Sound("Sound\\PaddleBounce.wav");
+Sound playerGoal = Sound("Sound\\PlayerGoal.wav");
+Sound opponentGoal = Sound("Sound\\OpponentGoal.wav");
 //Game Over Menu
 Text gameOverTitleText = Text(SCREEN_WIDTH / 2 - SCREEN_WIDTH / 4 / 2, SCREEN_HEIGHT / 4 / 4, SCREEN_WIDTH / 4, SCREEN_HEIGHT / 4);
 Text restartGameText = Text(SCREEN_WIDTH / 4 - SCREEN_WIDTH / 8 / 2, SCREEN_HEIGHT / 2 + SCREEN_HEIGHT / 8 / 2, SCREEN_WIDTH / 8, SCREEN_WIDTH / 8);
@@ -62,6 +68,8 @@ int main(int argc, char* args[])
 	SDL_Renderer* renderer = nullptr;
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 	TTF_Init();
+	Mix_Init(MIX_INIT_OGG | MIX_INIT_MP3);
+	Mix_OpenAudio(44000, MIX_DEFAULT_FORMAT, 2, 2048);
 	
 	window = SDL_CreateWindow("Pong-SDL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -69,7 +77,7 @@ int main(int argc, char* args[])
 	Load(renderer);
 
 	board = Board();
-	ball = Ball(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 16, 16, 5, 5);
+	ball = Ball(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 16, 16, 5, 5,wallBounceSound);
 	leftPaddle = Paddle(16, 200, 16, 64, 4);
 	rightPaddle = Paddle(SCREEN_WIDTH - 32, 200, 16, 64, 4);
 	//Main game loop.
@@ -103,6 +111,11 @@ void Load(SDL_Renderer* renderer)
 	gameOverTitleText.Load(renderer, "", { 0xFF,0xFF,0xFF });
 	restartGameText.Load(renderer, "Restart Game", { 0x00,0x00,0x00 });
 	returnToMenu.Load(renderer, "Return To Menu", { 0xFF,0xFF,0xFF });
+
+	wallBounceSound.Load();
+	paddleBounceSound.Load();
+	playerGoal.Load();
+	opponentGoal.Load();
 }
 bool HandleInput()
 {
@@ -192,6 +205,7 @@ void UpdateGameMenu(SDL_Renderer* renderer)
 
 	if (ballRect.x < 0)
 	{
+		opponentGoal.Play();
 		opponentScore++;
 		sprintf_s(newText, "%d", opponentScore);
 		opponentScoreText.ChangeText(renderer, newText, { 0xFF,0xFF,0xFF });
@@ -205,6 +219,7 @@ void UpdateGameMenu(SDL_Renderer* renderer)
 	}
 	else if (ballRect.x > SCREEN_WIDTH - ballRect.w)
 	{
+		playerGoal.Play();
 		playerScore++;
 		sprintf_s(newText, "%d", playerScore);
 		playerScoreText.ChangeText(renderer, newText, { 0xFF,0xFF,0xFF });
@@ -289,6 +304,7 @@ inline void CheckCollision(SDL_Rect* ballRect, SDL_Rect* paddleRect, int ballNew
 	
 	if (colliding)
 	{
+		paddleBounceSound.Play();
 		double ballAngle;
 		double hypoDistance;
 		double oppoDistance;
