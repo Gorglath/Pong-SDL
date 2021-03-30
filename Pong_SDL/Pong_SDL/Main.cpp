@@ -403,6 +403,9 @@ void Close(SDL_Renderer* renderer,SDL_Window* window)
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
+	Mix_CloseAudio();
+	Mix_Quit();
+	TTF_Quit();
 }
 inline double RemapValue(double value, double low1, double high1, double low2, double high2)
 {

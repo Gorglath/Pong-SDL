@@ -10,7 +10,7 @@ Sound::Sound(const char* fileName) : fileName(fileName), sound(nullptr)
 }
 Sound::~Sound()
 {
-
+	Destroy();
 }
 void Sound::Load()
 {
