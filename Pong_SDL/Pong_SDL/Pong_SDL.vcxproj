@@ -148,7 +148,6 @@
     <ClCompile Include="Paddle.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="Text.cpp" />
-    <ClCompile Include="Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ball.h" />
@@ -158,7 +157,6 @@
     <ClInclude Include="Paddle.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="Text.h" />
-    <ClInclude Include="Triangle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -8,7 +8,6 @@
 #include "Collision.h"
 #include "Board.h"
 #include "Text.h"
-#include "Triangle.h"
 #include "Sound.h"
 //Global Variables
 const int SCREEN_WIDTH = 800;
@@ -58,6 +57,7 @@ void RestartGame(SDL_Renderer* renderer);
 void Draw(SDL_Renderer* renderer);
 void Close(SDL_Renderer* renderer, SDL_Window* window);
 bool HandleInput();
+void CalculateBallNewSpeed(SDL_Rect* ballRect, SDL_Rect* paddleRect);
 inline void CheckCollision(SDL_Rect* ballRect, SDL_Rect* paddleRect, int newBallX);
 inline double RemapValue(double value, double low1, double high1, double low2, double high2);
 
@@ -305,31 +305,7 @@ inline void CheckCollision(SDL_Rect* ballRect, SDL_Rect* paddleRect, int ballNew
 	if (colliding)
 	{
 		paddleBounceSound.Play();
-		double ballAngle;
-		double hypoDistance;
-		double oppoDistance;
-		if (paddleRect->x > SCREEN_WIDTH / 2)
-		{
-			hypoDistance = Triangle::CalculateDistance((double)ballRect->x + ballRect->w / 2, (double)ballRect->y + ballRect->h / 2
-				, (double)paddleRect->x + paddleRect->w / 2, (double)paddleRect->y + paddleRect->h / 2);
-			oppoDistance = Triangle::CalculateDistance((double)paddleRect->x + paddleRect->w / 2, (double)ballRect->y + ballRect->h / 2
-				, (double)paddleRect->x + paddleRect->w / 2, (double)paddleRect->y + paddleRect->h / 2);
-			ballAngle = Triangle::GetSinAngle(hypoDistance, oppoDistance);
-		}
-		else
-		{
-			hypoDistance = Triangle::CalculateDistance((double)ballRect->x + ballRect->w / 2, (double)ballRect->y + ballRect->h / 2
-				, (double)paddleRect->x + paddleRect->w / 2, (double)paddleRect->y + paddleRect->h / 2);
-		    oppoDistance = Triangle::CalculateDistance((double)paddleRect->x + paddleRect->w / 2, (double)ballRect->y + ballRect->h / 2
-				, (double)paddleRect->x + paddleRect->w / 2, (double)paddleRect->y + paddleRect->h / 2);
-		    ballAngle = Triangle::GetSinAngle(hypoDistance, oppoDistance);
-		}
-		double remmapedAngle = RemapValue(ballAngle, 50.0, 75.0, 0.5, 1.5);
-		if (ballRect->y + ballRect->h / 2 < paddleRect->y + paddleRect->h / 2)
-		{
-			remmapedAngle = -remmapedAngle;
-		}
-		ball.SetSpeed(ball.GetXSpeed() , 5.0 * remmapedAngle);
+		CalculateBallNewSpeed(ballRect, paddleRect);
 		ball.HorizontalBounce(ballNewX);
 	}
 }
@@ -406,6 +382,34 @@ void Close(SDL_Renderer* renderer,SDL_Window* window)
 	Mix_CloseAudio();
 	Mix_Quit();
 	TTF_Quit();
+}
+
+void CalculateBallNewSpeed(SDL_Rect* ballRect, SDL_Rect* paddleRect)
+{
+	int paddleMiddlePoint = paddleRect->w / 2;
+	int intersectX = (paddleRect->x + paddleMiddlePoint) - (ballRect->x + (ballRect->w / 2));
+	int speedY = RemapValue(intersectX, -paddleMiddlePoint, paddleMiddlePoint, -5, 5);
+	if (speedY < 1 && speedY > -1)
+	{
+		if (speedY < 0)
+		{
+			speedY = -1;
+		}
+		else
+		{
+			speedY = 1;
+		}
+	}
+
+	if (ballRect->y < paddleRect->y && speedY > 0)
+	{
+		speedY = -speedY;
+	}
+	else if (speedY < 0)
+	{
+		speedY = -speedY;
+	}
+	ball.SetSpeed(ball.GetXSpeed(), speedY);
 }
 inline double RemapValue(double value, double low1, double high1, double low2, double high2)
 {

@@ -1,2 +1,3 @@
-﻿  Ball.cpp
+﻿  Main.cpp
+C:\Users\idan8\Desktop\C++ Projects\Pong-SDL\Pong_SDL\Pong_SDL\Main.cpp(391,13): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
   Pong_SDL.vcxproj -> C:\Users\idan8\Desktop\C++ Projects\Pong-SDL\Pong_SDL\x64\Debug\Pong_SDL.exe
