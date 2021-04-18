@@ -1,5 +1,5 @@
-#ifndef ID_PONG_PADDLE_H
-#define ID_PONG_PADDLE_H
+#ifndef INC_PONG_PADDLE_H
+#define INC_PONG_PADDLE_H
 #include <SDL.h>
 #include "PaddleInput.h"
 class Paddle

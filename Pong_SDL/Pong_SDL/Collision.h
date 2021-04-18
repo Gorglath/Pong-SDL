@@ -1,5 +1,5 @@
-#ifndef ID_PONG_COLLISION_H
-#define ID_PONG_COLLISION_H
+#ifndef INC_PONG_COLLISION_H
+#define INC_PONG_COLLISION_H
 #include <SDL.h>
 class Collision
 {

@@ -1,5 +1,5 @@
-#ifndef ID_PONG_BOARD_H
-#define ID_PONG_BOARD_H
+#ifndef INC_PONG_BOARD_H
+#define INC_PONG_BOARD_H
 #include <SDL.h>
 class Board
 {

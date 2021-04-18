@@ -1,5 +1,5 @@
-#ifndef ID_PONG_TEXT_H
-#define ID_PONG_TEXT_H
+#ifndef INC_PONG_TEXT_H
+#define INC_PONG_TEXT_H
 
 #include <SDL.h>
 #include <SDL_ttf.h>

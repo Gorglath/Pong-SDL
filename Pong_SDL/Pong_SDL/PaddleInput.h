@@ -1,5 +1,5 @@
-#ifndef ID_PONG_PADDLEINPUT_H
-#define ID_PONG_PADDLEINPUT_H
+#ifndef INC_PONG_PADDLEINPUT_H
+#define INC_PONG_PADDLEINPUT_H
 
 struct PaddleInput
 {

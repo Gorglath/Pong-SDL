@@ -1,5 +1,5 @@
-#ifndef ID_PONG_BALL_H
-#define ID_PONG_BALL_H
+#ifndef INC_PONG_BALL_H
+#define INC_PONG_BALL_H
 #include <SDL.h>
 #include"Sound.h"
 class Ball

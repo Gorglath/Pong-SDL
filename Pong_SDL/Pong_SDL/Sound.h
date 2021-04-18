@@ -1,5 +1,5 @@
-#ifndef ID_PONG_SOUND_H
-#define ID_PONG_SOUND_H
+#ifndef INC_PONG_SOUND_H
+#define INC_PONG_SOUND_H
 #include <SDL_mixer.h>
 class Sound
 {
